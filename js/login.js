@@ -22,9 +22,13 @@ form.addEventListener("submit", function (evt) {
         })
         .then(res => res.json())
         .then(datal => {
-            localStorage.setItem("Authorization", datal.Authorization)
-            window.location.href = "./index.html"
-            console.log(datal);
+            if (!datal.error) {
+                localStorage.setItem("Authorization", datal.Authorization)
+                window.location.href = "./index.html"
+                console.log(datal);
+            } else {
+                alert(datal.error)
+            }
         })
 
 

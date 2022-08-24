@@ -1,0 +1,14 @@
+body {
+    width: 100vw;
+    height: 100vh;
+}
+
+button,
+.a {
+    font-weight: 700;
+    color: white !important;
+    background: linear-gradient(180deg, #E93B77 0%, #DA1F63 100%);
+    border-radius: 8px;
+    border: none;
+    outline: none;
+}
