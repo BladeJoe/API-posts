@@ -5,7 +5,9 @@
 
  let elPostsWrapper = document.querySelector(".posts__wrapper");
  let elCommentsWrapper = document.querySelector(".comment__wrapper");
+ let elSavedTotal = document.querySelector(".saved__wrapper__total");
  let elUsersWrapper = document.querySelector(".users__wrapper");
+ let elSavedWrapper = document.querySelector(".saved__wrapper");
  let elUsersTotal = document.querySelector(".total__users");
  let elPostsTotal = document.querySelector(".total__posts");
  let elTotalUsers = document.querySelector(".total_users");
@@ -13,6 +15,49 @@
  let form = document.querySelector(".form_submit");
  let elCommentsTotal = document.querySelector(".total__comments");
  let elTempPosts = document.querySelector("#post__template").content;
+ let savedPostTemplate = document.querySelector("#savedPost").content;
+ let savedPosts = []
+
+ function renderSavedPosts(array) {
+     elSavedWrapper.innerHTML = null
+
+     let fragment = document.createDocumentFragment();
+
+     for (const item of array) {
+         let newItem = savedPostTemplate.cloneNode(true);
+
+         newItem.querySelector(".post__title").textContent = item.title;
+         newItem.querySelector(".post__body").textContent = item.body;
+         newItem.querySelector(".post__btn").dataset.id = item._id;
+         fragment.appendChild(newItem);
+     }
+
+     elSavedWrapper.appendChild(fragment)
+ }
+
+
+
+
+ elSavedWrapper.addEventListener("click", function (evt) {
+     let saveId = evt.target.dataset.likeId
+     if (saveId) {
+         let SavedItem = savedPosts.findIndex(function (item) {
+             return item.dataset.id == saveId
+         })
+
+         savedPosts.splice(SavedItem, 1);
+
+         localStorage.setItem("savedPosts", JSON.stringify(savedPosts));
+     }
+     renderSavedPosts(savedPosts);
+ })
+
+
+
+
+
+
+
 
  fetch("https://fast-ravine-16741.herokuapp.com/api/users/me", {
          method: "GET",
@@ -23,7 +68,7 @@
      }, )
      .then(res => res.json())
      .then(data1 => {
-         let me = document.querySelector(".me").innerHTML = data1.email
+         document.querySelector(".me").innerHTML = data1.email
      })
 
 
@@ -37,7 +82,6 @@
      .then(res => res.json())
      .then(data1 => {
          renderPosts(data1.posts);
-
          elTotalPosts.innerHTML = data1.totalResults;
      })
 
@@ -45,6 +89,9 @@
  elPostsWrapper.addEventListener("click", function (evt) {
      let datasetPostId = evt.target.dataset.id;
      let datasetEditId = evt.target.dataset.editId;
+     let datasetSaveId = evt.target.dataset.saveId;
+
+     let Li = evt.target.closest(".card");
 
      if (datasetPostId) {
          fetch(`https://fast-ravine-16741.herokuapp.com/api/posts/${datasetPostId}`, {
@@ -75,8 +122,6 @@
      }
 
      if (datasetEditId) {
-         let Li = evt.target.closest(".card");
-         console.log(Li);
          let submit = document.querySelector(".modalSubmit")
          let title = document.querySelector(".modal_title")
          let body = document.querySelector(".modal_body")
@@ -99,7 +144,6 @@
                  }, )
                  .then(res => res.json())
                  .then(data1 => {
-                     console.log(data1);
                      fetch("https://fast-ravine-16741.herokuapp.com/api/posts", {
                              method: "GET",
                              headers: {
@@ -121,8 +165,67 @@
 
 
      }
- })
 
+     if (datasetSaveId) {
+
+         if (savedPosts.length == 0) {
+             fetch(`https://fast-ravine-16741.herokuapp.com/api/posts/${datasetSaveId}`, {
+                     method: "GET",
+                     headers: {
+                         "Content-Type": "application/json",
+                         "Authorization": `${localStorage.getItem("Authorization")}`
+                     }
+                 }, )
+                 .then(res => res.json())
+                 .then(data => {
+
+
+                     if (!data.error) {
+                         savedPosts.unshift(data)
+                         renderSavedPosts(savedPosts)
+                         localStorage.setItem("savedPosts", JSON.stringify(savedPosts));
+                     }
+                 })
+
+         } else if (!savedPosts.find(item => item._id == datasetSaveId)) {
+             fetch(`https://fast-ravine-16741.herokuapp.com/api/posts/${datasetSaveId}`, {
+                     method: "GET",
+                     headers: {
+                         "Content-Type": "application/json",
+                         "Authorization": `${localStorage.getItem("Authorization")}`
+                     }
+                 }, )
+                 .then(res => res.json())
+                 .then(data => {
+
+
+                     if (!data.error) {
+                         savedPosts.unshift(data)
+                         renderSavedPosts(savedPosts)
+                         localStorage.setItem("savedPosts", JSON.stringify(savedPosts));
+                     }
+                 })
+
+         }
+
+         console.log(savedPosts);
+     }
+ })
+ elSavedWrapper.addEventListener("click", function (evt) {
+     let datasetPostId = evt.target.dataset.id;
+
+     if (datasetPostId) {
+         let FoundSavedPost = savedPosts.findIndex(function (item) {
+             return item.id == datasetPostId;
+         })
+
+         savedPosts.splice(FoundSavedPost, 1);
+
+         localStorage.setItem("savedPosts", JSON.stringify(savedPosts));
+     }
+     renderSavedPosts(savedPosts, elSavedWrapper);
+
+ })
 
  form.addEventListener("submit", function (evt) {
      evt.preventDefault();
@@ -170,11 +273,14 @@
      elPostsWrapper.innerHTML = null;
      let newFragment = document.createDocumentFragment();
      for (const item of array) {
+         RenderedPosts = array
          let newLi = elTempPosts.cloneNode(true);
          newLi.querySelector(".post__body").textContent = item.body;
          newLi.querySelector(".post__title").textContent = item.title;
          newLi.querySelector(".post__delete").dataset.id = item._id;
+
          newLi.querySelector(".post__edit").dataset.editId = item._id;
+         newLi.querySelector(".post__save").dataset.saveId = item._id;
 
          newFragment.appendChild(newLi);
      }
