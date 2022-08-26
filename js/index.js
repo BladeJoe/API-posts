@@ -16,24 +16,15 @@
  let elCommentsTotal = document.querySelector(".total__comments");
  let elTempPosts = document.querySelector("#post__template").content;
  let savedPostTemplate = document.querySelector("#savedPost").content;
- let savedPosts = []
+ let savedPosts
+ if (localStorage.getItem("savedPosts")) {
+     savedPosts = JSON.parse(localStorage.getItem("savedPosts"))
 
- function renderSavedPosts(array) {
-     elSavedWrapper.innerHTML = null
-
-     let fragment = document.createDocumentFragment();
-
-     for (const item of array) {
-         let newItem = savedPostTemplate.cloneNode(true);
-
-         newItem.querySelector(".post__title").textContent = item.title;
-         newItem.querySelector(".post__body").textContent = item.body;
-         newItem.querySelector(".post__btn").dataset.id = item._id;
-         fragment.appendChild(newItem);
-     }
-
-     elSavedWrapper.appendChild(fragment)
+     renderSavedPosts(savedPosts);
+ } else {
+     savedPosts = []
  }
+
 
 
 
@@ -286,4 +277,21 @@
      }
 
      elPostsWrapper.appendChild(newFragment);
+ }
+
+ function renderSavedPosts() {
+     elSavedWrapper.innerHTML = null
+
+     let fragment = document.createDocumentFragment();
+
+     for (const item of savedPosts) {
+         let newItem = savedPostTemplate.cloneNode(true);
+
+         newItem.querySelector(".post__title").textContent = item.title;
+         newItem.querySelector(".post__body").textContent = item.body;
+         newItem.querySelector(".post__btn").dataset.id = item._id;
+         fragment.appendChild(newItem);
+     }
+
+     elSavedWrapper.appendChild(fragment)
  }
