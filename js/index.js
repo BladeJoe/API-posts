@@ -13,6 +13,7 @@
  let elTotalUsers = document.querySelector(".total_users");
  let elTotalPosts = document.querySelector(".total_posts");
  let form = document.querySelector(".form_submit");
+ let elPageWrapper = document.querySelector(".pagination");
  let elCommentsTotal = document.querySelector(".total__comments");
  let elTempPosts = document.querySelector("#post__template").content;
  let savedPostTemplate = document.querySelector("#savedPost").content;
@@ -74,6 +75,7 @@
      .then(data1 => {
          renderPosts(data1.posts);
          elTotalPosts.innerHTML = data1.totalResults;
+         renderPagination(Math.ceil(data1.totalResults / 10), elPageWrapper)
      })
 
 
@@ -294,4 +296,23 @@
      }
 
      elSavedWrapper.appendChild(fragment)
+ }
+
+ function renderPagination(total, wrapper) {
+     wrapper.innerHTML = null;
+     console.log(total);
+     if (total > 1) {
+         let fragment = document.createDocumentFragment()
+         for (let i = 1; i <= total; i++) {
+             let NewLi = document.createElement("li")
+             let Newp = document.createElement("a")
+             NewLi.classList.add("page-item")
+             Newp.classList.add("page-link")
+             Newp.textContent = i
+             Newp.dataset.pageId = i
+             NewLi.appendChild(Newp)
+             fragment.appendChild(NewLi)
+         }
+         wrapper.appendChild(fragment)
+     }
  }
