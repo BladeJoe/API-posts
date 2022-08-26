@@ -26,6 +26,7 @@
      savedPosts = []
  }
 
+ let currentPage = 1;
 
 
 
@@ -64,7 +65,7 @@
      })
 
 
- fetch("https://fast-ravine-16741.herokuapp.com/api/posts", {
+ fetch(`https://fast-ravine-16741.herokuapp.com/api/posts?page=${currentPage}`, {
          method: "GET",
          headers: {
              "Content-Type": "application/json",
@@ -96,7 +97,7 @@
              }, )
              .then(res => res.json())
              .then(data1 => {
-                 fetch("https://fast-ravine-16741.herokuapp.com/api/posts", {
+                 fetch(`https://fast-ravine-16741.herokuapp.com/api/posts?page=${currentPage}`, {
                          method: "GET",
                          headers: {
                              "Content-Type": "application/json",
@@ -137,7 +138,7 @@
                  }, )
                  .then(res => res.json())
                  .then(data1 => {
-                     fetch("https://fast-ravine-16741.herokuapp.com/api/posts", {
+                     fetch(`https://fast-ravine-16741.herokuapp.com/api/posts?page=${currentPage}`, {
                              method: "GET",
                              headers: {
                                  "Content-Type": "application/json",
@@ -224,7 +225,7 @@
      evt.preventDefault();
 
 
-     fetch("https://fast-ravine-16741.herokuapp.com/api/posts", {
+     fetch(`https://fast-ravine-16741.herokuapp.com/api/posts?page=${currentPage}`, {
              method: "POST",
              headers: {
                  "Content-Type": "application/json",
@@ -237,7 +238,7 @@
          }, )
          .then(res => res.json())
          .then(data1 => {
-             fetch("https://fast-ravine-16741.herokuapp.com/api/posts", {
+             fetch(`https://fast-ravine-16741.herokuapp.com/api/posts?page=${currentPage}`, {
                      method: "GET",
                      headers: {
                          "Content-Type": "application/json",
@@ -255,10 +256,9 @@
          })
  })
  elPageWrapper.addEventListener("click", function (evt) {
-
-     let currentPage = evt.target.dataset.pageId
-
+     currentPage = evt.target.dataset.pageId
      if (currentPage) {
+         console.log(currentPage);
          fetch(`https://fast-ravine-16741.herokuapp.com/api/posts?page=${currentPage}`, {
                  method: "GET",
                  headers: {
@@ -267,7 +267,10 @@
                  }
              })
              .then(req => req.json())
-             .then(data => renderPosts(data.posts))
+             .then(data => {
+                 renderPagination(Math.ceil(data.totalResults / 10), elPageWrapper)
+                 renderPosts(data.posts);
+             })
      }
  })
 
@@ -316,17 +319,19 @@
      wrapper.innerHTML = null;
      console.log(total);
      if (total > 1) {
-         let fragment = document.createDocumentFragment()
          for (let i = 1; i <= total; i++) {
              let NewLi = document.createElement("li")
              let Newp = document.createElement("a")
              NewLi.classList.add("page-item")
+             if (i == currentPage) {
+                 NewLi.classList.add("active")
+             }
              Newp.classList.add("page-link")
              Newp.textContent = i
              Newp.dataset.pageId = i
              NewLi.appendChild(Newp)
-             fragment.appendChild(NewLi)
+             wrapper.appendChild(NewLi)
+
          }
-         wrapper.appendChild(fragment)
      }
  }
