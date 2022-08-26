@@ -254,8 +254,22 @@
              form.querySelector(".body").value = null;
          })
  })
+ elPageWrapper.addEventListener("click", function (evt) {
 
+     let currentPage = evt.target.dataset.pageId
 
+     if (currentPage) {
+         fetch(`https://fast-ravine-16741.herokuapp.com/api/posts?page=${currentPage}`, {
+                 method: "GET",
+                 headers: {
+                     "Content-Type": "application/json",
+                     "Authorization": `${localStorage.getItem("Authorization")}`
+                 }
+             })
+             .then(req => req.json())
+             .then(data => renderPosts(data.posts))
+     }
+ })
 
 
 
