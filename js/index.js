@@ -61,7 +61,8 @@
      }, )
      .then(res => res.json())
      .then(data1 => {
-         document.querySelector(".me").innerHTML = data1.email
+         console.log(data1);
+         document.querySelector(".me").innerHTML = `Email:${data1.email}<br> Name:${data1.name}`
      })
 
 
